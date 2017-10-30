@@ -345,8 +345,7 @@ public class ServerBootstrap extends Bootstrap {
     private final class Binder extends SimpleChannelUpstreamHandler {
 
         private final SocketAddress localAddress;
-        private final Map<String, Object> childOptions =
-            new HashMap<String, Object>();
+        private final Map<String, Object> childOptions = new HashMap<String, Object>();
         private final DefaultChannelFuture bindFuture = new DefaultChannelFuture(null, false);
         Binder(SocketAddress localAddress) {
             this.localAddress = localAddress;

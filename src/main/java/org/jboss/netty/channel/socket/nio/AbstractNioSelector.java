@@ -84,6 +84,7 @@ abstract class AbstractNioSelector implements NioSelector {
      */
     protected final AtomicBoolean wakenUp = new AtomicBoolean();
 
+    /** */
     private final Queue<Runnable> taskQueue = new ConcurrentLinkedQueue<Runnable>();
 
     private volatile int cancelledKeys; // should use AtomicInteger but we just need approximation
@@ -105,13 +106,17 @@ abstract class AbstractNioSelector implements NioSelector {
         registerTask(task);
     }
 
+    //注册NioWork
     protected final void registerTask(Runnable task) {
+
+        //1.
         taskQueue.add(task);
 
         Selector selector = this.selector;
 
         if (selector != null) {
             if (wakenUp.compareAndSet(false, true)) {
+                //????
                 selector.wakeup();
             }
         } else {
@@ -191,6 +196,7 @@ abstract class AbstractNioSelector implements NioSelector {
         logger.info("Migrated " + nChannels + " channel(s) to the new Selector,");
     }
 
+    // TODO: 2017/10/30 ????
     public void run() {
         thread = Thread.currentThread();
         startupLatch.countDown();
@@ -328,12 +334,12 @@ abstract class AbstractNioSelector implements NioSelector {
                     try {
                         selector.close();
                     } catch (IOException e) {
-                        logger.warn(
-                                "Failed to close a selector.", e);
+                        logger.warn("Failed to close a selector.", e);
                     }
                     shutdownLatch.countDown();
                     break;
                 } else {
+                    //
                     process(selector);
                 }
             } catch (Throwable t) {

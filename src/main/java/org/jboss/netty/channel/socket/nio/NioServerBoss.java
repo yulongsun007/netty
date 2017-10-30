@@ -97,10 +97,12 @@ public final class NioServerBoss extends AbstractNioSelector implements Boss {
             try {
                 // accept connections in a for loop until no new connection is ready
                 for (;;) {
+                    // SocketChannel
                     SocketChannel acceptedSocket = channel.socket.accept();
                     if (acceptedSocket == null) {
                         break;
                     }
+                    //
                     registerAcceptedChannel(channel, acceptedSocket, thread);
                 }
             } catch (CancelledKeyException e) {
@@ -127,30 +129,27 @@ public final class NioServerBoss extends AbstractNioSelector implements Boss {
         }
     }
 
-    private static void registerAcceptedChannel(NioServerSocketChannel parent, SocketChannel acceptedSocket,
-                                         Thread currentThread) {
+    // 将创建的SocketChannel注册到Sub Reactor(NioWork Pool)中
+    private static void registerAcceptedChannel(NioServerSocketChannel parent, SocketChannel acceptedSocket, Thread currentThread) {
         try {
+            //
             ChannelSink sink = parent.getPipeline().getSink();
-            ChannelPipeline pipeline =
-                    parent.getConfig().getPipelineFactory().getPipeline();
+            ChannelPipeline pipeline = parent.getConfig().getPipelineFactory().getPipeline();
+            // get a sub thread
             NioWorker worker = parent.workerPool.nextWorker();
-            worker.register(new NioAcceptedSocketChannel(
-                    parent.getFactory(), pipeline, parent, sink
-                    , acceptedSocket,
-                    worker, currentThread), null);
+            //
+            worker.register(new NioAcceptedSocketChannel(parent.getFactory(), pipeline, parent, sink, acceptedSocket, worker, currentThread),
+                    null);
         } catch (Exception e) {
             if (logger.isWarnEnabled()) {
-                logger.warn(
-                        "Failed to initialize an accepted socket.", e);
+                logger.warn("Failed to initialize an accepted socket.", e);
             }
 
             try {
                 acceptedSocket.close();
             } catch (IOException e2) {
                 if (logger.isWarnEnabled()) {
-                    logger.warn(
-                            "Failed to close a partially accepted socket.",
-                            e2);
+                    logger.warn("Failed to close a partially accepted socket.", e2);
                 }
             }
         }

@@ -31,14 +31,17 @@ import org.jboss.netty.channel.socket.ServerSocketChannelConfig;
 import org.jboss.netty.logging.InternalLogger;
 import org.jboss.netty.logging.InternalLoggerFactory;
 
-class NioServerSocketChannel extends AbstractServerChannel
-                             implements org.jboss.netty.channel.socket.ServerSocketChannel {
+/**
+ *
+ */
+class NioServerSocketChannel extends AbstractServerChannel implements org.jboss.netty.channel.socket.ServerSocketChannel {
 
-    private static final InternalLogger logger =
-        InternalLoggerFactory.getInstance(NioServerSocketChannel.class);
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(NioServerSocketChannel.class);
 
     final ServerSocketChannel socket;
+    // Main Reactor
     final Boss boss;
+    // Sub Reactor
     final WorkerPool<NioWorker> workerPool;
 
     private final ServerSocketChannelConfig config;
@@ -52,6 +55,7 @@ class NioServerSocketChannel extends AbstractServerChannel
         this.boss = boss;
         this.workerPool = workerPool;
         try {
+            //实例化一个ServerSocketChannel
             socket = ServerSocketChannel.open();
         } catch (IOException e) {
             throw new ChannelException(

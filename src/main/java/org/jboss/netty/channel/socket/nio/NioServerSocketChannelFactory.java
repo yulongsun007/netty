@@ -84,8 +84,10 @@ import org.jboss.netty.util.ExternalResourceReleasable;
  */
 public class NioServerSocketChannelFactory implements ServerSocketChannelFactory {
 
+    /** Sub Reactor Thread Pool */
     private final WorkerPool<NioWorker> workerPool;
     private final NioServerSocketPipelineSink sink;
+    /** Main Reactor Thread Pool*/
     private final BossPool<NioServerBoss> bossPool;
     private boolean releasePools;
 
@@ -143,8 +145,7 @@ public class NioServerSocketChannelFactory implements ServerSocketChannelFactory
      * @param workerCount
      *        the maximum number of I/O worker threads
      */
-    public NioServerSocketChannelFactory(
-            Executor bossExecutor, int bossCount, Executor workerExecutor,
+    public NioServerSocketChannelFactory(Executor bossExecutor, int bossCount, Executor workerExecutor,
             int workerCount) {
         this(bossExecutor, bossCount, new NioWorkerPool(workerExecutor, workerCount));
     }
